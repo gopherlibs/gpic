@@ -22,20 +22,31 @@ import(
 
 ## Usage
 
-Coming soon.
 
 ```go
 package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/revidian-cloud/go-gravatar/gravatar"
 )
 
 func main() {
 
+	img, err := gravatar.NewImage("FelicianoTech@gmail.com")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	imgURL, err := img.URL()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(imgURL.String())
 }
 ```
 
