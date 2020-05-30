@@ -1,4 +1,4 @@
-# Gravatar Go Library [![CircleCI Build Status](https://circleci.com/gh/revidian-cloud/go-gravatar.svg?style=shield)](https://circleci.com/gh/revidian-cloud/go-gravatar) [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/revidian-cloud/go-gravatar/master/LICENSE)
+# Gravatar Go Library [![CircleCI Build Status](https://circleci.com/gh/revidian-cloud/go-gravatar.svg?style=shield)](https://circleci.com/gh/revidian-cloud/go-gravatar) [![Go Report Card](https://goreportcard.com/badge/github.com/revidian-cloud/go-gravatar)](https://goreportcard.com/report/github.com/revidian-cloud/go-gravatar) [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/revidian-cloud/go-gravatar/master/LICENSE)
 
 `go-gravatar` is a Go (Golang) module that allows you to generate Gravatar URLs easily in your own Go project.
 
