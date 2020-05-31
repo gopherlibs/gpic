@@ -1,8 +1,5 @@
 version: 2.1
 
-orbs:
-  go: circleci/go@1.1
-
 workflows:
   main:
     jobs:
@@ -10,11 +7,24 @@ workflows:
 
 jobs:
   build:
-    executor:
-      name: go/default
-      tag: "1.14"
+    docker:
+      - image: cimg/go:1.14
     steps:
       - checkout
-      - go/load-cache
-      - go/test
-      - go/save-cache
+      - restore_cache:
+          keys:
+            - go-mod-v1-{{ checksum "gravatar/go.sum"  }}
+      - run:
+          name: "Test with GoTestSum"
+          command: |
+            mkdir ./test-output
+            gotestsum --junitfile ./test-output/unit-tests.xml
+      - save_cache:
+          key: go-mod-v1-{{ checksum "gravatar/go.sum"  }}
+          paths:
+            - /home/circleci/go/pkg/mod
+      - store_test_results:
+          path: ./test-output
+      - run:
+          name: "Try compiling"
+          command: go build ./...
