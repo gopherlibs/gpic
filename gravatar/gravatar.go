@@ -32,6 +32,18 @@ type Image struct {
 	rating       rating
 }
 
+func (this *Image) SetDefault(urlS string) error {
+
+	theURL, err := url.Parse(urlS)
+	if err != nil {
+		return err
+	}
+
+	this.defaultImage = url.QueryEscape(theURL.String())
+
+	return nil
+}
+
 func (i *Image) SetSize(size uint16) error {
 
 	if size == 0 {
