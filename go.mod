@@ -1,3 +1,3 @@
-module github.com/gopherlibs/gravatar/gravatar
+module github.com/gopherlibs/gravatar
 
 go 1.16
