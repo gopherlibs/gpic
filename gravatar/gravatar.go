@@ -66,7 +66,7 @@ func (i *Image) URL() (*url.URL, error) {
 	v.Add("rating", i.rating.String())
 
 	if i.defaultImage != "" {
-		v.Add("default", url.QueryEscape(i.defaultImage))
+		v.Add("default", i.defaultImage)
 	}
 
 	return url.Parse(hostname + path + v.Encode())
