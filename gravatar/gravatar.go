@@ -39,7 +39,7 @@ func (this *Image) SetDefault(urlS string) error {
 		return err
 	}
 
-	this.defaultImage = url.QueryEscape(theURL.String())
+	this.defaultImage = theURL.String()
 
 	return nil
 }
