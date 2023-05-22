@@ -1,4 +1,4 @@
-package gravatar
+package gpic
 
 import (
 	"crypto/md5"
