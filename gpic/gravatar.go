@@ -4,6 +4,8 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
+	"net/http"
+	"net/mail"
 	"net/url"
 	"strconv"
 	"strings"
@@ -25,11 +27,12 @@ func (r rating) String() string {
 }
 
 type Image struct {
-	email        string
-	emailHash    string
-	defaultImage string
-	size         uint16
-	rating       rating
+	email        	string
+	emailHash    	string
+	defaultImage 	string
+	size         	uint16
+	rating       	rating
+	disableDefault	bool
 }
 
 func (this *Image) SetDefault(urlS string) error {
@@ -65,6 +68,10 @@ func (i *Image) URL() (*url.URL, error) {
 	v.Add("size", strconv.Itoa(int(i.size)))
 	v.Add("rating", i.rating.String())
 
+	if i.disableDefault {
+		v.Add("d", "404")
+	}
+
 	if i.defaultImage != "" {
 		v.Add("default", i.defaultImage)
 	}
@@ -72,25 +79,68 @@ func (i *Image) URL() (*url.URL, error) {
 	return url.Parse(hostname + path + v.Encode())
 }
 
-func NewImage(email string) (*Image, error) {
+// checkURL returns true when we want to use the image and false when we do not
+func (i *Image) checkURL() (bool, error) {
+	
+	url, err := i.URL()
+	if err != nil {
+		return false, err
+	}
+	resp, err := http.Get(url.String())
+	if err != nil {
+		return false, err
+	}
+
+	if resp.StatusCode == 404 {
+		return false, nil 
+	} else if resp.StatusCode == 200 {
+		return true, nil
+	} else {
+		return false, errors.New("gravatar: unexpected status code: " + resp.Status)
+	}
+}
+
+func NewImage(inputs ...string) (*Image, error) {
 
 	var i Image
 
-	emailHash, err := hashEmail(email)
-	if err != nil {
-		return nil, err
-	}
-	i.emailHash = emailHash
-	i.email = email
+	for idx, input := range inputs {
 
-	err = i.SetSize(80)
-	if err != nil {
-		return nil, err
-	}
+		i.disableDefault = false
 
-	i.rating = RatingG
+		if !isValidEmail(input) {
+			continue
+		}
+
+		emailHash, err := hashEmail(input)
+		if err != nil {
+			return nil, err
+		}
+		i.emailHash = emailHash
+		i.email = input
+
+		err = i.SetSize(80)
+		if err != nil {
+			return nil, err
+		}
+
+		i.rating = RatingG
+
+		if len(inputs) != idx + 1 {
+			i.disableDefault = true
+			validURL, err := i.checkURL() 
+			if err != nil {
+				return nil, err	
+			}
+
+			if validURL {
+				break 
+			}
+		} 
+	}
 
 	return &i, nil
+
 }
 
 func hashEmail(email string) (string, error) {
@@ -104,4 +154,9 @@ func hashEmail(email string) (string, error) {
 	hash := md5.Sum([]byte(email))
 
 	return hex.EncodeToString(hash[:]), nil
+}
+
+func isValidEmail(address string) (bool) {
+	_, err := mail.ParseAddress(address)
+	return err == nil 
 }
