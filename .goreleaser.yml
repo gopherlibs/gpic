@@ -1,4 +1,4 @@
-project_name: gravatar
+project_name: gpic
 
 builds:
   - skip: true
