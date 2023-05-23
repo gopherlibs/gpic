@@ -13,14 +13,14 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-v1-{{ checksum "gravatar/go.sum"  }}
+            - go-mod-v1-{{ checksum "go.sum"  }}
       - run:
           name: "Test with GoTestSum"
           command: |
             mkdir ./test-output
             gotestsum --junitfile ./test-output/unit-tests.xml
       - save_cache:
-          key: go-mod-v1-{{ checksum "gravatar/go.sum"  }}
+          key: go-mod-v1-{{ checksum "go.sum"  }}
           paths:
             - /home/circleci/go/pkg/mod
       - store_test_results:
