@@ -3,7 +3,10 @@ package gpic
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/mail"
 	"net/url"
@@ -33,6 +36,10 @@ type Image struct {
 	size         	uint16
 	rating       	rating
 	disableDefault	bool
+}
+
+type GithubUser struct {
+	AvatarURL	string	`json:"avatar_url"`
 }
 
 func (this *Image) SetDefault(urlS string) error {
@@ -108,35 +115,60 @@ func NewImage(inputs ...string) (*Image, error) {
 
 		i.disableDefault = false
 
-		if !isValidEmail(input) {
-			continue
-		}
-
-		emailHash, err := hashEmail(input)
-		if err != nil {
-			return nil, err
-		}
-		i.emailHash = emailHash
-		i.email = input
-
-		err = i.SetSize(80)
-		if err != nil {
-			return nil, err
-		}
-
-		i.rating = RatingG
-
-		if len(inputs) != idx + 1 {
-			i.disableDefault = true
-			validURL, err := i.checkURL() 
+		if isValidEmail(input) {
+			emailHash, err := hashEmail(input)
 			if err != nil {
-				return nil, err	
+				return nil, err
+			}
+			i.emailHash = emailHash
+			i.email = input
+
+			err = i.SetSize(80)
+			if err != nil {
+				return nil, err
 			}
 
-			if validURL {
-				break 
+			i.rating = RatingG
+
+			if len(inputs) != idx + 1 {
+				i.disableDefault = true
+				validURL, err := i.checkURL() 
+				if err != nil {
+					return nil, err	
+				}
+
+				if validURL {
+					break 
+				}
+			} 
+		}
+
+		if strings.HasPrefix(input, "gh:") {
+			
+			ghUser := strings.TrimPrefix(input, "gh:")
+			url := "https://api.github.com/users/" + ghUser
+
+			resp, err := http.Get(url)
+			if err != nil {
+				return nil, err
 			}
-		} 
+
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			
+			var githubUser GithubUser 
+			err = json.Unmarshal(body, &githubUser)
+			if err != nil {
+				return nil, err
+			}
+
+			fmt.Println(githubUser.AvatarURL) //Need to figure out what to do with this
+
+		}
+		
 	}
 
 	return &i, nil

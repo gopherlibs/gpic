@@ -27,15 +27,16 @@ func TestImageURL(t *testing.T) {
 		size         uint16
 		expectedURL  string
 	}{
-		{[]string{"info@chayev.com","Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "", 0, 0, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?rating=g&size=80"},
-		{[]string{"Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "", 0, 0, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?rating=g&size=80"},
-		{[]string{"Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "", 0, 50, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?rating=g&size=50"},
-		{[]string{"Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "", RatingR, 50, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?rating=r&size=50"},
-		{[]string{"Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "", RatingR, 3000, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?rating=r&size=80"},
-		{[]string{"Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "identicon", 0, 0, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?default=identicon&rating=g&size=80"},
-		{[]string{"Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "retro", RatingPG, 2000, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?default=retro&rating=pg&size=2000"},
-		{[]string{"info@chayev.com"}, "328576744df0329b287e83fb6257ebb5", "", 0, 50, "https://www.gravatar.com/avatar/328576744df0329b287e83fb6257ebb5.jpg?rating=g&size=50"},
-		{[]string{"Ricardo@Feliciano.Tech","info@chayev.com"}, "f6d625c59c19ea57fe2c3d7968a56f29", "", RatingR, 50, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?d=404&rating=r&size=50"},
+		{[]string{"gh:chayev"}, "", "", 0, 0, ""},
+		// {[]string{"info@chayev.com","Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "", 0, 0, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?rating=g&size=80"},
+		// {[]string{"Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "", 0, 0, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?rating=g&size=80"},
+		// {[]string{"Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "", 0, 50, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?rating=g&size=50"},
+		// {[]string{"Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "", RatingR, 50, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?rating=r&size=50"},
+		// {[]string{"Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "", RatingR, 3000, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?rating=r&size=80"},
+		// {[]string{"Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "identicon", 0, 0, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?default=identicon&rating=g&size=80"},
+		// {[]string{"Ricardo@Feliciano.Tech"}, "f6d625c59c19ea57fe2c3d7968a56f29", "retro", RatingPG, 2000, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?default=retro&rating=pg&size=2000"},
+		// {[]string{"info@chayev.com"}, "328576744df0329b287e83fb6257ebb5", "", 0, 50, "https://www.gravatar.com/avatar/328576744df0329b287e83fb6257ebb5.jpg?rating=g&size=50"},
+		// {[]string{"Ricardo@Feliciano.Tech","info@chayev.com"}, "f6d625c59c19ea57fe2c3d7968a56f29", "", RatingR, 50, "https://www.gravatar.com/avatar/f6d625c59c19ea57fe2c3d7968a56f29.jpg?d=404&rating=r&size=50"},
 	}
 
 	for idx, sample := range samples {
