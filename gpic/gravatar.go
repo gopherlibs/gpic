@@ -143,10 +143,18 @@ func NewImage(inputs ...string) (*Image, error) {
 			} 
 		}
 
-		if strings.HasPrefix(input, "gh:") {
+		if strings.HasPrefix(input, "ghu:") || strings.HasPrefix(input, "ghi:") {
 			
-			ghUser := strings.TrimPrefix(input, "gh:")
-			url := "https://api.github.com/users/" + ghUser
+			var ghUser string
+			var url string
+
+			if strings.HasPrefix(input, "ghu:") {
+				ghUser = strings.TrimPrefix(input, "ghu:")
+				url = "https://api.github.com/users/" + ghUser
+			} else {
+				ghUser = strings.TrimPrefix(input, "ghi:")
+				url = "https://api.github.com/user/" + ghUser
+			}
 
 			resp, err := http.Get(url)
 			if err != nil {
