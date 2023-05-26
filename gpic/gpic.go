@@ -41,7 +41,7 @@ func checkURL(avatar Avatar) (bool, error) {
 	} else if resp.StatusCode == 200 {
 		return true, nil
 	} else {
-		return false, errors.New("gravatar: unexpected status code: " + resp.Status)
+		return false, errors.New("unexpected status code: " + resp.Status)
 	}
 }
 
@@ -55,6 +55,8 @@ func checkURL(avatar Avatar) (bool, error) {
  * `ghp_someSortOfToken` - GitHub - API token
  * `gh:someUsername` - GitHub - username
  * `ghi:12345678` - GitHub - user ID
+ * `glpat-someSortOfToken` - GitLab - API token
+ * `gl:someUsername` - GitLab - username
  */
 func NewAvatar(inputs ...string) (Avatar, error) {
 
@@ -103,10 +105,10 @@ func NewAvatar(inputs ...string) (Avatar, error) {
 		}
 
 		// check for GitHub username
-		username, found := strings.CutPrefix(input, "gh:")
+		result, found := strings.CutPrefix(input, "gh:")
 		if found {
 
-			avatar, err = NewGitHubAvatar("username", username)
+			avatar, err = NewGitHubAvatar("username", result)
 			if err != nil {
 				continue
 			}
@@ -115,16 +117,40 @@ func NewAvatar(inputs ...string) (Avatar, error) {
 		}
 
 		// check for GitHub ID
-		id, found := strings.CutPrefix(input, "ghi:")
+		result, found = strings.CutPrefix(input, "ghi:")
 		if found {
 
-			avatar, err = NewGitHubAvatar("id", id)
+			avatar, err = NewGitHubAvatar("id", result)
 
 			if err != nil {
 				continue
 			}
 
 			break
+		} 
+		
+		// check for GitLab token
+		if strings.HasPrefix(input, "glpat-") {
+
+			avatar, err = NewGitLabAvatar("token", input)
+			if err != nil {
+				continue
+			}
+
+			break
+		}
+
+		// check for GitLab username
+		result, found = strings.CutPrefix(input, "gl:")
+		if found {
+
+			avatar, err = NewGitLabAvatar("username", result)
+			if err != nil {
+				continue
+			}
+
+			break
+
 		} else {
 			if (idx + 1) == len(inputs) {
 				return nil, errors.New("None of the inputs were valid.")
