@@ -50,7 +50,7 @@ func TestNewAvatar(t *testing.T) {
 		// sample 13
 		{[]string{"ghp_test-broken-token"}, 0, "", false},
 		// Uses a special fake token designed just for tests, first a bad one, then a good one
-		// sample 13
+		// sample 14
 		{[]string{"ghp_test-broken-token", "ghp_test-working-token"}, 0, "", true},
 	}
 
