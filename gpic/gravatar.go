@@ -4,14 +4,14 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
-	"net/http"
 	"net/mail"
 	"net/url"
 	"strconv"
 	"strings"
 )
 
-const hostname = "https://www.gravatar.com"
+const GR_HOSTNAME = "https://www.gravatar.com"
+const GR_MAX_SIZE = 2048
 
 type rating int
 
@@ -26,16 +26,27 @@ func (r rating) String() string {
 	return [...]string{"g", "pg", "r", "x"}[r]
 }
 
-type Image struct {
-	email        	string
-	emailHash    	string
-	defaultImage 	string
-	size         	uint16
-	rating       	rating
-	disableDefault	bool
+type gravatar struct {
+	avatarEmbed
+	email          string
+	emailHash      string
+	defaultImage   string
+	size           int16
+	rating         rating
+	disableDefault bool
 }
 
-func (this *Image) SetDefault(urlS string) error {
+func (this *gravatar) IsDefault() bool {
+
+	notDefault, _ := checkURL(this)
+	if notDefault {
+		return false
+	}
+
+	return true
+}
+
+func (this *gravatar) SetDefault(urlS string) error {
 
 	theURL, err := url.Parse(urlS)
 	if err != nil {
@@ -47,62 +58,84 @@ func (this *Image) SetDefault(urlS string) error {
 	return nil
 }
 
-func (i *Image) SetSize(size uint16) error {
+func (this *gravatar) setDisableDefault(disable bool) {
+	this.disableDefault = disable
+}
 
-	if size == 0 {
-		return errors.New("gravatar: image size cannot be 0px")
-	} else if size > 2048 {
-		return errors.New("gravatar: image size cannot be larger than 2048px")
+func (this *gravatar) SetSize(size int16) error {
+
+	if size == -1 || size > GR_MAX_SIZE {
+		size = GR_MAX_SIZE
 	}
 
-	i.size = size
+	if size < -1 {
+		return errors.New("Size cannot be a negative number under -1.")
+	}
+
+	this.size = size
 
 	return nil
 }
 
-func (i *Image) URL() (*url.URL, error) {
+func (this *gravatar) URL() (*url.URL, error) {
 
-	path := "/avatar/" + i.emailHash + ".jpg" + "?"
+	path := "/avatar/" + this.emailHash + ".jpg" + "?"
 
 	v := url.Values{}
-	v.Add("size", strconv.Itoa(int(i.size)))
-	v.Add("rating", i.rating.String())
+	if this.size != 0 {
+		v.Add("size", strconv.Itoa(int(this.size)))
+	}
+	v.Add("rating", this.rating.String())
 
-	if i.disableDefault {
+	if this.disableDefault {
 		v.Add("d", "404")
 	}
 
-	if i.defaultImage != "" {
-		v.Add("default", i.defaultImage)
+	if this.defaultImage != "" {
+		v.Add("default", this.defaultImage)
 	}
 
-	return url.Parse(hostname + path + v.Encode())
+	return url.Parse(GR_HOSTNAME + path + v.Encode())
 }
 
-// checkURL returns true when we want to use the image and false when we do not
-func (i *Image) checkURL() (bool, error) {
-	
-	url, err := i.URL()
-	if err != nil {
-		return false, err
-	}
-	resp, err := http.Get(url.String())
-	if err != nil {
-		return false, err
+/*
+ * Retrieve a Gravatar image by email address.
+ */
+func NewGravatar(email string) (*gravatar, error) {
+
+	avatar := new(gravatar)
+
+	avatar.disableDefault = false
+
+	if !isValidEmail(email) {
+		return nil, errors.New("Not a valid URL.")
 	}
 
-	if resp.StatusCode == 404 {
-		return false, nil 
-	} else if resp.StatusCode == 200 {
-		return true, nil
-	} else {
-		return false, errors.New("gravatar: unexpected status code: " + resp.Status)
+	emailHash, err := hashEmail(email)
+	if err != nil {
+		return nil, err
 	}
+	avatar.emailHash = emailHash
+	avatar.email = email
+
+	err = avatar.SetSize(80)
+	if err != nil {
+		return nil, err
+	}
+
+	avatar.rating = RatingG
+
+	return avatar, nil
+
 }
 
-func NewImage(inputs ...string) (*Image, error) {
+/* Original entrypoint into this module. Only supports Gravatar. This function
+ * is deprecated and will go away before the 1.0 release. Instead, the new
+ * NewAvatar function should be used instead.
+ */
+func NewImage(inputs ...string) (*gravatar, error) {
 
-	var i Image
+	i := new(gravatar)
 
 	for idx, input := range inputs {
 
@@ -126,20 +159,20 @@ func NewImage(inputs ...string) (*Image, error) {
 
 		i.rating = RatingG
 
-		if len(inputs) != idx + 1 {
+		if len(inputs) != idx+1 {
 			i.disableDefault = true
-			validURL, err := i.checkURL() 
+			validURL, err := checkURL(i)
 			if err != nil {
-				return nil, err	
+				return nil, err
 			}
 
 			if validURL {
-				break 
+				break
 			}
-		} 
+		}
 	}
 
-	return &i, nil
+	return i, nil
 
 }
 
@@ -156,7 +189,7 @@ func hashEmail(email string) (string, error) {
 	return hex.EncodeToString(hash[:]), nil
 }
 
-func isValidEmail(address string) (bool) {
+func isValidEmail(address string) bool {
 	_, err := mail.ParseAddress(address)
-	return err == nil 
+	return err == nil
 }
