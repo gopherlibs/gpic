@@ -88,7 +88,7 @@ func NewGitHubAvatar(iType, input string) (*githubAvatar, error) {
 	}
 
 	// special case to help mock token tests
-	if iType == "token" && input == "test-working-token" {
+	if iType == "token" && input == "ghp_test-working-token" {
 		avatar.ID = 6017470
 		return avatar, nil
 	}

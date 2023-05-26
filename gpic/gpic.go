@@ -92,10 +92,9 @@ func NewAvatar(inputs ...string) (Avatar, error) {
 		}
 
 		// check for GitHub token
-		token, found := strings.CutPrefix(input, "ghp_")
-		if found {
+		if strings.HasPrefix(input, "ghp_") {
 
-			avatar, err = NewGitHubAvatar("token", token)
+			avatar, err = NewGitHubAvatar("token", input)
 			if err != nil {
 				continue
 			}
