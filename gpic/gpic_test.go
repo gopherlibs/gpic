@@ -52,13 +52,28 @@ func TestNewAvatar(t *testing.T) {
 		// Uses a special fake token designed just for tests, first a bad one, then a good one
 		// sample 14
 		{[]string{"ghp_test-broken-token", "ghp_test-working-token"}, 0, "", true},
+		// GitLab username
+		// sample 15
+		{[]string{"gl:chayev"}, 0, "https://gitlab.com/uploads/-/system/user/avatar/5945977/avatar.png", true},
+		// Invalid GitLab username
+		// sample 16
+		{[]string{"gl:chayev.png"}, -1, "", false},
+		// GitLab token - Uses a special fake token designed just for tests
+		// sample 17
+		{[]string{"glpat-test-working-token"}, 100, "https://gitlab.com/uploads/-/system/user/avatar/5945977/avatar.png?width=200", true},
+		// GitLab broken token and GitLab username
+		// sample 18
+		{[]string{"glpat-test-broken-token","gl:felicianotech"}, 90, "https://gitlab.com/uploads/-/system/user/avatar/283008/avatar.png?width=96", true},
+		// GitLab token - Uses a special fake token designed just for tests
+		// sample 19
+		{[]string{"glpat-test-broken-token"}, 0, "", false},
 	}
 
 	for idx, sample := range samples {
 
 		avatar, err := NewAvatar(sample.inputs...)
 		if err != nil && sample.pass {
-			t.Errorf("Failed creating new avatar, when it should have passed. Pass is: %t #: %d\n", sample.pass, idx+1)
+			t.Errorf("Failed creating new avatar, when it should have passed. Pass is: %t #: %d\n err: %v\n\n", sample.pass, idx+1, err)
 			continue
 		} else {
 			continue
