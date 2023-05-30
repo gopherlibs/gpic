@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-const GH_HOSTNAME = "https://avatars.githubusercontent.com/"
+const GH_HOSTNAME = "https://avatars.githubusercontent.com"
 const GH_MAX_SIZE = 460
 
 type githubAvatar struct {
