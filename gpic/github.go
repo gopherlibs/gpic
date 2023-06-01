@@ -74,7 +74,14 @@ func NewGitHubAvatar(iType, input string) (*githubAvatar, error) {
 	case "token":
 		url = "https://api.github.com/user"
 	case "id":
-		url = fmt.Sprintf("https://api.github.com/user/%s", input)
+
+		aID, err := strconv.ParseFloat(input, 64)
+		if err != nil {
+			return nil, err
+		}
+		avatar.ID = int64(aID)
+
+		return avatar, nil
 	}
 
 	client := &http.Client{}
