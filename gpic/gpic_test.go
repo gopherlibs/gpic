@@ -67,6 +67,9 @@ func TestNewAvatar(t *testing.T) {
 		// GitLab token - Uses a special fake token designed just for tests
 		// sample 19
 		{[]string{"glpat-test-broken-token"}, 0, "", false},
+		// GitLab id
+		// sample 20
+		{[]string{"gli:5945977"}, 10, "https://gitlab.com/uploads/-/system/user/avatar/5945977/avatar.png?width=16", true},
 	}
 
 	for idx, sample := range samples {

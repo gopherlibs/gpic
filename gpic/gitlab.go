@@ -85,7 +85,17 @@ func NewGitLabAvatar(iType, input string) (*gitlabAvatar, error) {
 		url = fmt.Sprintf("https://gitlab.com/api/v4/users?username=%s", input)
 	case "token":
 		url = "https://gitlab.com/api/v4/user"
-	}
+	case "id":
+		
+		aID, err := strconv.ParseFloat(input, 64)
+		if err != nil {
+			return nil, err
+		}
+
+		avatar.ID = int64(aID)
+
+		return avatar, nil
+	} 
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)

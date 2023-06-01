@@ -151,6 +151,19 @@ func NewAvatar(inputs ...string) (Avatar, error) {
 
 			break
 
+		}
+		
+		// check for GitLab id
+		result, found = strings.CutPrefix(input, "gli:")
+		if found {
+
+			avatar, err = NewGitLabAvatar("id", result)
+			if err != nil {
+				continue
+			}
+
+			break
+
 		} else {
 			if (idx + 1) == len(inputs) {
 				return nil, errors.New("None of the inputs were valid.")
