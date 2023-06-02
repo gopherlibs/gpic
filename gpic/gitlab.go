@@ -77,8 +77,16 @@ func (this *gitlabAvatar) URL() (*url.URL, error) {
 
 func NewGitLabAvatar(iType, input string) (*gitlabAvatar, error) {
 
-	var url string
 	avatar := new(gitlabAvatar)
+
+	// check cache first
+	id, found := cache.read("gl" + iType + input)
+	if found {
+		avatar.ID = id
+		return avatar, nil
+	}
+
+	var url string
 
 	switch iType {
 	case "username":
@@ -86,7 +94,7 @@ func NewGitLabAvatar(iType, input string) (*gitlabAvatar, error) {
 	case "token":
 		url = "https://gitlab.com/api/v4/user"
 	case "id":
-		
+
 		aID, err := strconv.ParseFloat(input, 64)
 		if err != nil {
 			return nil, err
@@ -95,7 +103,7 @@ func NewGitLabAvatar(iType, input string) (*gitlabAvatar, error) {
 		avatar.ID = int64(aID)
 
 		return avatar, nil
-	} 
+	}
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
@@ -123,7 +131,7 @@ func NewGitLabAvatar(iType, input string) (*gitlabAvatar, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var gitlabUser []map[string]interface{}
 	var gitlabUserToken map[string]interface{}
 
@@ -132,11 +140,11 @@ func NewGitLabAvatar(iType, input string) (*gitlabAvatar, error) {
 		if err != nil {
 			return nil, err
 		}
-	
+
 		if len(gitlabUser) == 0 {
 			return nil, errors.New("No data available.")
 		}
-		
+
 		avatar.ID = int64(gitlabUser[0]["id"].(float64))
 	} else {
 		err = json.Unmarshal(body, &gitlabUserToken)
@@ -151,6 +159,8 @@ func NewGitLabAvatar(iType, input string) (*gitlabAvatar, error) {
 		avatar.ID = int64(gitlabUserToken["id"].(float64))
 	}
 
+	// write to cache
+	cache.write("gl"+iType+input, avatar.ID)
 
 	return avatar, nil
 }
