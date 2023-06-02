@@ -65,8 +65,16 @@ func (this *githubAvatar) URL() (*url.URL, error) {
 // this isn't complete for tokens yet
 func NewGitHubAvatar(iType, input string) (*githubAvatar, error) {
 
-	var url string
 	avatar := new(githubAvatar)
+
+	// check cache first
+	id, found := cache.read("gh" + iType + input)
+	if found {
+		avatar.ID = id
+		return avatar, nil
+	}
+
+	var url string
 
 	switch iType {
 	case "username":
@@ -123,6 +131,9 @@ func NewGitHubAvatar(iType, input string) (*githubAvatar, error) {
 	}
 
 	avatar.ID = int64(githubUser["id"].(float64))
+
+	// write to cache
+	cache.write("gh"+iType+input, avatar.ID)
 
 	return avatar, nil
 }
