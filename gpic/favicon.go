@@ -1,13 +1,24 @@
 package gpic
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"time"
+
+	"slices"
 )
 
 var faviconFileTypes = []string{"svg", "png", "ico"}
+var faviconContentTypes = []string{
+	"image/svg+xml",
+	"image/x-png",
+	"image/png",
+	"image/x-icon",
+	"image/vnd.microsoft.icon",
+}
+var ErrNotFound = errors.New("A favicon was not found.")
 
 /*
  * Finds and returns a URL to a favicon. The favicon is searched for on the
@@ -20,7 +31,7 @@ func GetFavicon(URL *url.URL) (string, error) {
 
 	// Prep the URL. Drop any path from the URL as we're only concerned about
 	// hostnames
-	inputURL := fmt.Sprintf("%s://%s/favicon.", URL.Scheme, URL.Hostname())
+	inputURL := fmt.Sprintf("%s://%s/favicon.", URL.Scheme, URL.Host)
 
 	client := &http.Client{
 		Timeout: time.Duration(time.Second * 10),
@@ -35,10 +46,10 @@ func GetFavicon(URL *url.URL) (string, error) {
 		}
 		defer resp.Body.Close()
 
-		if resp.StatusCode == 200 {
+		if resp.StatusCode == 200 && slices.Contains(faviconContentTypes, resp.Header.Get("Content-Type")) {
 			return inputURL + fileType, nil
 		}
 	}
 
-	return "", nil
+	return "", ErrNotFound
 }
