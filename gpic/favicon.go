@@ -29,6 +29,12 @@ var ErrNotFound = errors.New("A favicon was not found.")
  */
 func GetFavicon(URL *url.URL) (string, error) {
 
+	// check cache first
+	url, found := strCache.read("fav" + URL.String())
+	if found {
+		return url, nil
+	}
+
 	// Prep the URL. Drop any path from the URL as we're only concerned about
 	// hostnames
 	inputURL := fmt.Sprintf("%s://%s/favicon.", URL.Scheme, URL.Host)
@@ -47,6 +53,10 @@ func GetFavicon(URL *url.URL) (string, error) {
 		defer resp.Body.Close()
 
 		if resp.StatusCode == 200 && slices.Contains(faviconContentTypes, resp.Header.Get("Content-Type")) {
+
+			// write to cache
+			strCache.write("fav"+URL.String(), inputURL+fileType)
+
 			return inputURL + fileType, nil
 		}
 	}

@@ -31,3 +31,31 @@ func (this *inputCache) write(input string, id int64) {
 	this.items[input] = id
 	this.mu.Unlock()
 }
+
+var strCache stringInputCache = stringInputCache{items: make(map[string]string)}
+
+// A cache for gPic inputs where the value is a string. Stores them as a map and uses a RW mutex.
+type stringInputCache struct {
+	mu    sync.RWMutex
+	items map[string]string
+}
+
+func (this *stringInputCache) read(input string) (string, bool) {
+
+	this.mu.RLock()
+	id, found := this.items[input]
+	this.mu.RUnlock()
+
+	if !found {
+		return "", false
+	}
+
+	return id, true
+}
+
+func (this *stringInputCache) write(input string, id string) {
+
+	this.mu.Lock()
+	this.items[input] = id
+	this.mu.Unlock()
+}
